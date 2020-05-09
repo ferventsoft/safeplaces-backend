@@ -11,7 +11,8 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 
 var app = express();
-
+require('dotenv').config()
+//console.log('----->',process.env)
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -60,5 +61,8 @@ else{
     });
   });
 }
-
+app.set('port', 6002);
+app.listen(app.get('port'), () => {
+  console.log(`server on port ${app.get('port')}`);
+});
 module.exports = app;

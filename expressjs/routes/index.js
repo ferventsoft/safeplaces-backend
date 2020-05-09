@@ -12,7 +12,7 @@ var organizations = require('../db/models/organizations');
 var publications = require('../db/models/publications');
 var trails = require('../db/models/trails');
 var users = require('../db/models/users');
-
+const NodeGeocoder = require('node-geocoder');
 const LocalStrategy = require('passport-local').Strategy;
 
 
@@ -317,4 +317,49 @@ passport.serializeUser(function(user, done) {
 
 passport.deserializeUser(function(user, done) {
 	done(null, user);
-});		
+});	
+
+/**
+ * @author : Jaswinder Kumar
+ * @CreatedAt : 9-may-2020
+ * @Description : To get logtitite and longitude with google geocode....
+ */
+router.get('/getAddtessLogtitude',  async function(req, res)  {
+
+  var address = req.query.address
+  var provider = req.query.provider
+  let options = {}
+
+  if (address == '') {
+      res.status(400).send({ success: false, err: "Please enter valid address" })
+  }
+
+  switch (provider) {
+      case 'google':
+          options = {
+              provider: 'google',
+              apiKey: process.env.GOOGLE_MAP_API_KEY,
+          };
+          break;
+      case 'here':
+          options = {
+              provider: 'here',
+              apiKey: process.env.HERE_MAP_KEY,
+          };
+      break;
+      case 'bing':
+          options = {
+              provider: 'virtualearth',
+              apiKey: process.env.BING_MAP_KEY,
+          };
+      break;
+
+      default:
+          res.status(400).send({ success: false, err: "Please enter valid provider" })
+      break;
+  }
+  console.log('options--------->',options)
+  const geocoder = NodeGeocoder(options);
+  const resonse = await geocoder.geocode(address);
+  res.status(200).send({ success: true, data: resonse })
+})
